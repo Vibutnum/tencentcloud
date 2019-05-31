@@ -2,6 +2,7 @@ import { DeployData } from '@faasjs/func';
 import configFunction from './function/config';
 import buildFunction from './function/build';
 import deployFunction from './function/deploy';
+import deployHttp from './http/deploy';
 
 export default class Tencentcloud {
   /**
@@ -16,6 +17,10 @@ export default class Tencentcloud {
         const processed = configFunction(data, config);
         await buildFunction(data.logger, processed.config);
         await deployFunction(data.logger, processed.provider.config, processed.config);
+        return processed;
+      }
+      case 'http': {
+        await deployHttp(data, config);
         break;
       }
       default:
