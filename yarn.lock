@@ -673,10 +673,10 @@
     "@faasjs/deep_merge" beta
     "@faasjs/logger" beta
 
-"@faasjs/load@^0.0.0-alpha.13":
-  version "0.0.0-alpha.13"
-  resolved "https://registry.npmjs.org/@faasjs/load/-/load-0.0.0-alpha.13.tgz#c4a73e91551a13fee12da9c2504dce48728bf346"
-  integrity sha512-eXZfiTElGMNNbHaolkWERfPi9OMs6td+j3N2vquGUN/zSvv15vlnFPidZOXnqJowXe7P3SApvwNn52o5JHZdsA==
+"@faasjs/load@beta":
+  version "0.0.0-alpha.14"
+  resolved "https://registry.npmjs.org/@faasjs/load/-/load-0.0.0-alpha.14.tgz#8a1225b95ef8f1d9e051ef62818cce6d63e0b023"
+  integrity sha512-C56bP3O/pCCAZdRwH1c3NR1+m7ZNihEZIlx9kH6HI/WUH9UnF8YHa7bmZSc7KVzZTJm4gOplcbOCEAZRUxPYiQ==
   dependencies:
     "@faasjs/deep_merge" beta
     js-yaml "*"
@@ -695,11 +695,6 @@
   integrity sha512-qw2LK+Ej5d8ducwSb4UpWhTbHweNNooqxUrK//my1XfYYWFA0IGASC3tKArW6BZ9e9H7+muHD6hyEAL02YEPxw==
   dependencies:
     "@faasjs/logger" beta
-
-"@faasjs/trigger-http@beta":
-  version "0.0.0-alpha.8"
-  resolved "https://registry.npmjs.org/@faasjs/trigger-http/-/trigger-http-0.0.0-alpha.8.tgz#2e0361f9f4c4599c046eefd71b73fe3b05b98ee4"
-  integrity sha512-UrWtNHoNdqmaeYIN+rP5N1KGmQRrQKyDjA4MBu3fo0Uv2e7qBSYWnOYCk/+7Sc2JCyXPDYd/6OWY+mCE6TY3JA==
 
 "@jest/console@^24.7.1":
   version "24.7.1"

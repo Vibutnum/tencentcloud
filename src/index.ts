@@ -16,7 +16,7 @@ export default class Tencentcloud {
       case 'function': {
         const processed = configFunction(data, config);
         await buildFunction(data.logger, processed.config);
-        await deployFunction(data.logger, processed.provider.config, processed.config);
+        await deployFunction(data.logger, processed.config);
         return processed;
       }
       case 'http': {

@@ -1,23 +1,21 @@
 defaults:
   deploy:
     env: testing
-  providers: # 服务商配置
+  providers:
     tencentcloud:
-      type: '@faasjs/tencentcloud' # 服务商类型
-      config: # 服务商的全局配置
+      type: '@faasjs/tencentcloud'
+      config:
         appId: appId
         secretId: secretId
         secretKey: secretKey
         region: ap-beijing
-  resources: # 云资源配置
+  plugins:
     defaults:
       function: function
       http: http
-    # 云函数
     function:
       provider: tencentcloud
       type: function
-    # API 网关
     http:
       provider: tencentcloud
       type: apigateway

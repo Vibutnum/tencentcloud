@@ -44,9 +44,11 @@ export default async function (data: DeployData, origin: any) {
     serviceScfFunctionNamespace: data.env
   });
 
+  const provider = config.config.provider.config;
+
   data.logger.debug('查询网关接口是否存在');
 
-  const apiInfo = await api(config.provider.config, {
+  const apiInfo = await api(provider, {
     Action: 'DescribeApisStatus',
     searchName: config.config['requestConfig.path'],
     serviceId: config.config.serviceId,
@@ -58,20 +60,20 @@ export default async function (data: DeployData, origin: any) {
 
   if (apiInfo) {
     data.logger.info('更新网关接口');
-    await api(config.provider.config, Object.assign(config.config, {
+    await api(provider, Object.assign(config.config, {
       Action: 'ModifyApi',
       apiId: apiInfo.apiId,
     }));
   } else {
     data.logger.info('创建网关接口');
-    await api(config.provider.config, Object.assign(config.config, {
+    await api(provider, Object.assign(config.config, {
       Action: 'CreateApi',
     }));
   }
 
   data.logger.info('发布网关');
 
-  await api(config.provider.config, {
+  await api(provider, {
     Action: 'ReleaseService',
     environmentName: 'release',
     releaseDesc: `Published ${config.config.serviceScfFunctionName} by ${process.env.LOGNAME}`,

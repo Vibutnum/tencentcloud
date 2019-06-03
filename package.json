@@ -1,6 +1,6 @@
 {
   "name": "@faasjs/tencentcloud",
-  "version": "0.0.0-alpha.3",
+  "version": "0.0.0-alpha.4",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -27,7 +27,6 @@
     "@babel/preset-typescript": "*",
     "@faasjs/eslint-config-recommended": "beta",
     "@faasjs/func": "beta",
-    "@faasjs/trigger-http": "beta",
     "@types/debug": "*",
     "@types/jest": "*",
     "@types/node": "*",

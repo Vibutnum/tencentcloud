@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cosSdk = require('cos-nodejs-sdk-v5');
 
-export default function cosUploadFile (SecretId: string, SecretKey: string, params: any) {
+export default function cosUploadFile (provider: any, params: any) {
   const client = new cosSdk({
-    SecretId,
-    SecretKey,
+    SecretId: provider.secretId,
+    SecretKey: provider.secretKey,
   });
 
   return new Promise((resolve, reject) => {
