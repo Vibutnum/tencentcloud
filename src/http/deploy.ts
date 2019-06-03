@@ -44,7 +44,7 @@ export default async function (data: DeployData, origin: any) {
     serviceScfFunctionNamespace: data.env
   });
 
-  const provider = config.config.provider.config;
+  const provider = config.provider.config;
 
   data.logger.debug('查询网关接口是否存在');
 
