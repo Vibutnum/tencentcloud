@@ -2,9 +2,8 @@ import Logger from '@faasjs/logger';
 import cos from './cos';
 import scf from './scf';
 
-export default async function (logger: Logger, config: any) {
+export default async function (logger: Logger, provider: any, config: any) {
   logger.info('开始部署云函数');
-  const provider = config.provider;
 
   logger.info('上传代码包');
   await cos(provider, {
