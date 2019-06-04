@@ -34,7 +34,7 @@ export default async function (logger: Logger, provider: any, config: any) {
 
     logger.info('更新云函数设置');
     await scf(provider, {
-      Action: 'Updateconfiguration',
+      Action: 'UpdateFunctionConfiguration',
       Environment: config.Environment,
       FunctionName: config.FunctionName,
       MemorySize: config.MemorySize,
