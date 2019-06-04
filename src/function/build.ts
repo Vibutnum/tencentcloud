@@ -3,7 +3,7 @@ import Logger from '@faasjs/logger';
 import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 
-export default async function (logger: Logger, config: any) {
+export default async function (logger: Logger, config: any, pluginsConfig: any) {
   logger.info('开始构建代码包');
   logger.debug('%o', config);
 
@@ -21,7 +21,7 @@ export default async function (logger: Logger, config: any) {
  */`,
       footer: `
 const main = module.exports;
-main.config = ${JSON.stringify(config)};
+main.config = ${JSON.stringify(pluginsConfig)};
 module.exports = main.export();`
     }
   });
