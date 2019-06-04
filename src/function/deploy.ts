@@ -53,8 +53,10 @@ export default async function (logger: Logger, provider: any, config: any) {
           CosObjectName: config.CosObjectName,
         },
         FunctionName: config.FunctionName,
+        Handler: config.Handler,
         Namespace: config.Namespace,
         MemorySize: config.MemorySize,
+        Runtime: config.Runtime,
         Timeout: config.Timeout,
         VpcConfig: config.VpcConfig,
       });

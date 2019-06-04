@@ -38,7 +38,7 @@ function formatSignString (params: any) {
 export default function action (config: any, params: any) {
   params = Object.assign({
     Nonce: Math.round(Math.random() * 65535),
-    Region: params.Region,
+    Region: config.region,
     SecretId: config.secretId,
     SignatureMethod: 'HmacSHA256',
     Timestamp: Math.round(Date.now() / 1000) - 1,
