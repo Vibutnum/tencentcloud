@@ -21,7 +21,7 @@ export default async function (logger: Logger, config: any, pluginsConfig: any) 
  */`,
       footer: `
 const main = module.exports;
-main.config = ${JSON.stringify(pluginsConfig)};
+main.pluginsConfig = ${JSON.stringify(pluginsConfig)};
 module.exports = main.export();`
     }
   });
