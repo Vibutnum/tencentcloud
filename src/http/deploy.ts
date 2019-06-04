@@ -21,7 +21,7 @@ export default async function (data: DeployData, origin: any) {
     config.config['requestConfig.path'] = config.config.path;
     delete config.config.path;
   } else {
-    config.config['requestConfig.path'] = data.name.replace(/_/g, '/');
+    config.config['requestConfig.path'] = '/' + data.name.replace(/_/g, '/');
   }
   if (config.config.method) {
     config.config['requestConfig.method'] = config.config.method;
