@@ -41,7 +41,8 @@ export default async function (data: DeployData, origin: any) {
   // 合并配置项
   config.config = deepMerge(defaults, config.config, {
     apiName: data.name,
-    serviceScfFunctionNamespace: data.env
+    serviceScfFunctionNamespace: data.env,
+    serviceScfFunctionQualifier: data.env
   });
 
   const provider = config.provider.config;
