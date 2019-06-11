@@ -18,10 +18,11 @@ export default async function (logger: Logger, config: any, allConfig: any) {
  * @author ${process.env.LOGNAME}
  * @build ${config.version}
  * @staging ${config.env}
+ * @dependencies ${JSON.stringify(config.dependencies)}
  */`,
       footer: `
 const main = module.exports;
-main.config = ${JSON.stringify(allConfig)};
+main.config = ${JSON.stringify(allConfig, null, 2)};
 module.exports = main.export();`
     }
   });

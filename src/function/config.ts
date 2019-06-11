@@ -33,6 +33,18 @@ export default function (data: DeployData, origin: any) {
     // 基本参数
     Region: config.provider.config.region,
     Namespace: data.env,
+    Environment: {
+      Variables: [
+        {
+          Key: 'FaasMode',
+          Value: 'remote'
+        },
+        {
+          Key: 'FaasEnv',
+          Value: data.env
+        }
+      ]
+    },
 
     // 构建参数
     filename: data.filename,

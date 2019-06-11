@@ -54,6 +54,7 @@ export default async function (logger: Logger, provider: any, config: any) {
           CosBucketRegion: config.Region,
           CosObjectName: config.CosObjectName,
         },
+        Environment: config.Environment,
         FunctionName: config.FunctionName,
         Handler: config.Handler,
         Namespace: config.Namespace,
