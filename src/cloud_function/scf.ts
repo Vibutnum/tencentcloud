@@ -1,5 +1,6 @@
 import request from '@faasjs/request';
 import * as crypto from 'crypto';
+import Tencentcloud from '..';
 
 function mergeData (data: any, prefix: string = '') {
   const ret: any = {};
@@ -35,11 +36,11 @@ function formatSignString (params: any) {
  * @param config.secretKey {string} secretKey
  * @param params {object} 请求参数
  */
-export default function action (config: any, params: any) {
+export default function action (this: Tencentcloud, params: any) {
   params = Object.assign({
     Nonce: Math.round(Math.random() * 65535),
-    Region: config.region,
-    SecretId: config.secretId,
+    Region: this.config.region,
+    SecretId: this.config.secretId,
     SignatureMethod: 'HmacSHA256',
     Timestamp: Math.round(Date.now() / 1000) - 1,
     Version: '2018-04-16',
@@ -48,18 +49,22 @@ export default function action (config: any, params: any) {
 
   const sign = 'POSTscf.tencentcloudapi.com/?' + formatSignString(params);
 
-  params.Signature = crypto.createHmac('sha256', config.secretKey).update(sign).digest('base64');
+  params.Signature = crypto.createHmac('sha256', this.config.secretKey).update(sign).digest('base64');
 
   return request('https://scf.tencentcloudapi.com/?', {
     body: params,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     method: 'POST',
   }).then(function (res) {
-    const body = JSON.parse(res.body);
-    if (body.Response.Error) {
-      throw Error(JSON.stringify(body.Response.Error));
-    } else {
-      return body.Response;
+    try {
+      const body = JSON.parse(res.body);
+      if (body.Response.Error) {
+        return Promise.reject(Error(JSON.stringify(body.Response.Error)));
+      } else {
+        return body.Response;
+      }
+    } catch (error) {
+      return Promise.reject(error);
     }
   });
 }

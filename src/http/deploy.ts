@@ -1,6 +1,7 @@
 import { DeployData } from '@faasjs/func';
 import api from './api';
 import deepMerge from '@faasjs/deep_merge';
+import Tencentcloud from '..';
 
 const defaults = {
   authRequired: 'FALSE',
@@ -11,8 +12,8 @@ const defaults = {
   serviceTimeout: 30
 };
 
-export default async function (data: DeployData, origin: any) {
-  data.logger.info('[TencentCloud] 开始发布网关');
+export default async function (this: Tencentcloud, data: DeployData, origin: any) {
+  this.logger.info('开始发布网关');
 
   const config = deepMerge(origin);
 
@@ -21,7 +22,7 @@ export default async function (data: DeployData, origin: any) {
     config.config['requestConfig.path'] = config.config.path;
     delete config.config.path;
   } else {
-    config.config['requestConfig.path'] = '/' + data.name.replace(/_/g, '/');
+    config.config['requestConfig.path'] = '/' + data.name!.replace(/_/g, '/');
   }
   if (config.config.method) {
     config.config['requestConfig.method'] = config.config.method;
@@ -35,7 +36,7 @@ export default async function (data: DeployData, origin: any) {
     config.config.serviceScfFunctionName = config.config.functionName;
     delete config.config.functionName;
   } else {
-    config.config.serviceScfFunctionName = data.name.replace(/[^a-zA-Z0-9-_]/g, '_');
+    config.config.serviceScfFunctionName = data.name!.replace(/[^a-zA-Z0-9-_]/g, '_');
   }
 
   // 合并配置项
@@ -47,7 +48,7 @@ export default async function (data: DeployData, origin: any) {
 
   const provider = config.provider.config;
 
-  data.logger.debug('查询网关接口是否存在');
+  this.logger.debug('查询网关接口是否存在');
 
   const apiInfo = await api(provider, {
     Action: 'DescribeApisStatus',
@@ -60,19 +61,19 @@ export default async function (data: DeployData, origin: any) {
   });
 
   if (apiInfo) {
-    data.logger.info('更新网关接口');
+    this.logger.info('更新网关接口');
     await api(provider, Object.assign(config.config, {
       Action: 'ModifyApi',
       apiId: apiInfo.apiId,
     }));
   } else {
-    data.logger.info('创建网关接口');
+    this.logger.info('创建网关接口');
     await api(provider, Object.assign(config.config, {
       Action: 'CreateApi',
     }));
   }
 
-  data.logger.info('发布网关');
+  this.logger.info('发布网关');
 
   await api(provider, {
     Action: 'ReleaseService',
@@ -81,5 +82,5 @@ export default async function (data: DeployData, origin: any) {
     serviceId: config.config.serviceId,
   });
 
-  data.logger.info('发布完成 %s %s', config.config['requestConfig.method'], config.config['requestConfig.path']);
+  this.logger.info('发布完成 %s %s', config.config['requestConfig.method'], config.config['requestConfig.path']);
 }

@@ -1,30 +1,45 @@
 import { DeployData } from '@faasjs/func';
-import configFunction from './function/config';
-import buildFunction from './function/build';
-import deployFunction from './function/deploy';
+import Logger from '@faasjs/logger';
+import deployCloudFunction from './cloud_function/deploy';
+import invokeCloudFunction from './cloud_function/invoke';
 import deployHttp from './http/deploy';
 
+export interface TencentcloudConfig {
+  secretId: string;
+  secretKey: string;
+  region: string;
+  [key: string]: any;
+}
+
 export default class Tencentcloud {
+  public config: TencentcloudConfig;
+  public logger: Logger;
+
+  constructor (config: TencentcloudConfig) {
+    this.config = config;
+    this.logger = new Logger('Tencentcloud');
+  }
   /**
    * 部署
    * @param type {string} 发布类型，支持 function
    * @param data {object} 部署环境配置
    * @param config {Logger} 部署对象配置
    */
-  public async deploy (type: string, data: DeployData, config: any) {
+  public deploy (type: string, data: DeployData, config: any) {
     switch (type) {
-      case 'function': {
-        const processed = configFunction(data, config);
-        await buildFunction(data.logger, processed.config, data.config);
-        await deployFunction(data.logger, processed.provider.config, processed.config);
-        return processed;
-      }
-      case 'http': {
-        await deployHttp(data, config);
-        break;
-      }
+      case 'cloud_function':
+        return deployCloudFunction.call(this, data, config);
+      case 'http':
+        return deployHttp.call(this, data, config);
       default:
         throw Error(`Unknow deploy type: ${type}`);
     }
+  }
+
+  public async invokeCloudFunction (name: string, data: {
+    event: any;
+    context: any;
+  }, options?: any) {
+    return invokeCloudFunction.call(this, name, data, options);
   }
 }

@@ -56,11 +56,15 @@ export default function (provider: any, params: any) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     method: 'POST',
   }).then(function (res) {
-    const body = JSON.parse(res.body);
-    if (body.code) {
-      throw Error(JSON.stringify(body));
-    } else {
-      return body;
+    try {
+      const body = JSON.parse(res.body);
+      if (body.code) {
+        return Promise.reject(Error(JSON.stringify(body)));
+      } else {
+        return body;
+      }
+    } catch (error) {
+      return Promise.reject(error);
     }
   });
 }

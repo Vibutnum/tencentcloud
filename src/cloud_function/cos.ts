@@ -1,10 +1,12 @@
+import Tencentcloud from '..';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cosSdk = require('cos-nodejs-sdk-v5');
 
-export default function cosUploadFile (provider: any, params: any) {
+export default function cosUploadFile (this: Tencentcloud, params: any) {
   const client = new cosSdk({
-    SecretId: provider.secretId,
-    SecretKey: provider.secretKey,
+    SecretId: this.config.secretId,
+    SecretKey: this.config.secretKey,
   });
 
   return new Promise((resolve, reject) => {
