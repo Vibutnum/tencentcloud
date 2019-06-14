@@ -18,12 +18,9 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
   const config = deepMerge(origin);
 
   // 参数名适配
-  if (config.config.path) {
-    config.config['requestConfig.path'] = config.config.path;
-    delete config.config.path;
-  } else {
-    config.config['requestConfig.path'] = '/' + data.name!.replace(/_/g, '/');
-  }
+  config.config['requestConfig.path'] = config.config.path;
+  delete config.config.path;
+
   if (config.config.method) {
     config.config['requestConfig.method'] = config.config.method;
     delete config.config.method;
