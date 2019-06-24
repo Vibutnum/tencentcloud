@@ -6,7 +6,7 @@ export default function invokeCloudFunction (this: Tencentcloud, name: string, d
 
   return scf.call(this, Object.assign({
     Action: 'Invoke',
-    FunctionName: name,
+    FunctionName: name.replace(/[^a-zA-Z0-9-_]/g, '_'),
     ClientContext: JSON.stringify(data),
     InvocationType: 'Event',
     Namespace: process.env.FaasEnv,
