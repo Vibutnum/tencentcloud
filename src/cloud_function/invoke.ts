@@ -10,7 +10,8 @@ export default function invokeCloudFunction (this: Tencentcloud, name: string, d
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      method: 'POST'
     });
   } else {
     return scf.call(this, Object.assign({
