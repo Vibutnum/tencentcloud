@@ -13,12 +13,6 @@ export default {
     }
   ],
   plugins: [
-    typescript({
-      tsconfigOverride: {
-        compilerOptions: {
-          module: 'esnext'
-        }
-      }
-    })
+    typescript()
   ]
 };
