@@ -56,15 +56,11 @@ export default function action (this: Tencentcloud, params: any) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     method: 'POST',
   }).then(function (res) {
-    try {
-      const body = JSON.parse(res.body);
-      if (body.Response.Error) {
-        return Promise.reject(Error(JSON.stringify(body.Response.Error)));
-      } else {
-        return body.Response;
-      }
-    } catch (error) {
-      return Promise.reject(error);
+    if (res.body.Response.Error) {
+      console.error(res.body);
+      return Promise.reject(Error(JSON.stringify(res.body.Response.Error)));
+    } else {
+      return res.body.Response;
     }
   });
 }
