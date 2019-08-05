@@ -148,7 +148,7 @@ module.exports = main.export();`
       Namespace: config.config.Namespace,
     });
   } catch (error) {
-    if (error.message.includes('ResourceNotFound.Function')) {
+    if (error.message.includes('ResourceNotFound.FunctionName')) {
       this.logger.info('创建云函数');
       await scf.call(this, {
         Action: 'CreateFunction',
