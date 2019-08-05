@@ -3,7 +3,7 @@ import deepMerge from '@faasjs/deep_merge';
 import { loadTs } from '@faasjs/load';
 import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
-import cos from './cos';
+import { upload, remove } from './cos';
 import scf from './scf';
 import Tencentcloud from '..';
 
@@ -109,7 +109,7 @@ module.exports = main.export();`
 
 
   this.logger.info('上传代码包');
-  await cos.call(this, {
+  await upload.call(this, {
     Bucket: config.config.Bucket,
     FilePath: config.config.FilePath,
     Key: config.config.CosObjectName,
@@ -148,7 +148,7 @@ module.exports = main.export();`
       Namespace: config.config.Namespace,
     });
   } catch (error) {
-    if (error.message.includes('ResourceNotFound.FunctionName')) {
+    if (error.Code === 'ResourceNotFound.FunctionName') {
       this.logger.info('创建云函数');
       await scf.call(this, {
         Action: 'CreateFunction',
@@ -170,6 +170,13 @@ module.exports = main.export();`
       throw error;
     }
   }
+
+  this.logger.debug('删除代码包');
+  await remove.call(this, {
+    Bucket: config.config.Bucket,
+    Key: config.config.CosObjectName,
+    Region: config.config.Region,
+  });
 
   this.logger.info('发布云函数版本');
   let res = await scf.call(this, {
@@ -197,7 +204,7 @@ module.exports = main.export();`
       FunctionVersion: config.config.FunctionVersion,
     });
   } catch (error) {
-    if (error.message.includes('ResourceNotFound.Alias')) {
+    if (error.Code === 'ResourceNotFound.Alias') {
       this.logger.info('发布云函数别名');
       await scf.call(this, {
         Action: 'CreateAlias',

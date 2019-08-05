@@ -79,5 +79,5 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
     serviceId: config.config.serviceId,
   });
 
-  this.logger.info('发布完成 %s %s', config.config['requestConfig.method'], config.config['requestConfig.path']);
+  this.logger.info('网关发布完成 %s %s', config.config['requestConfig.method'], config.config['requestConfig.path']);
 }

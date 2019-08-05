@@ -58,7 +58,7 @@ export default function action (this: Tencentcloud, params: any) {
   }).then(function (res) {
     if (res.body.Response.Error) {
       console.error(res.body);
-      return Promise.reject(Error(JSON.stringify(res.body.Response.Error)));
+      return Promise.reject(res.body.Response.Error);
     } else {
       return res.body.Response;
     }
