@@ -52,6 +52,7 @@ export default async function deployCloudFunction (this: Tencentcloud, data: Dep
         }
       ]
     },
+    FunctionVersion: '1',
 
     // 构建参数
     filename: data.filename,
@@ -116,10 +117,22 @@ module.exports = main.export();`
     Region: config.config.Region,
   });
 
+  this.logger.debug('检查命名空间是否存在 %s', config.config.Namespace);
+  const namespaceList = await scf.call(this, {
+    Action: 'ListNamespaces'
+  });
+  if (!namespaceList.Namespaces.find((n: any) => n.Namespaces === config.config.Namespace)) {
+    this.logger.info('创建命名空间');
+    await scf.call(this, {
+      Action: 'CreateNamespace',
+      Namespace: config.config.Namespace
+    });
+  }
+
   let scfInfo;
 
   try {
-    this.logger.debug('检查云函数是否已存在');
+    this.logger.debug('检查云函数是否已存在 %s', config.config.FunctionName);
     scfInfo = await scf.call(this, {
       Action: 'GetFunction',
       FunctionName: config.config.FunctionName,
@@ -179,17 +192,18 @@ module.exports = main.export();`
   });
 
   this.logger.info('发布云函数版本');
-  let res = await scf.call(this, {
+  const version = await scf.call(this, {
     Action: 'PublishVersion',
     Description: `Published by ${process.env.LOGNAME}`,
     FunctionName: config.config.FunctionName,
     Namespace: config.config.Namespace
   });
-  config.config.FunctionVersion = res.FunctionVersion;
+  // eslint-disable-next-line require-atomic-updates
+  config.config.FunctionVersion = version.FunctionVersion;
 
   try {
     this.logger.debug('检查云函数别名是否已存在 %s', config.config.Namespace);
-    res = await scf.call(this, {
+    await scf.call(this, {
       Action: 'GetAlias',
       Name: config.config.Namespace,
       FunctionName: config.config.FunctionName,
@@ -222,6 +236,7 @@ module.exports = main.export();`
 
   if (config.config.triggers) {
     this.logger.info('检查并删除旧触发器');
+    const prevVersion = Number(config.config.FunctionVersion) - 1;
     if (scfInfo && scfInfo.Triggers.length) {
       for (const trigger of scfInfo.Triggers) {
         await scf.call(this, {
@@ -229,11 +244,11 @@ module.exports = main.export();`
           FunctionName: config.config.FunctionName,
           Namespace: config.config.Namespace,
           TriggerName: trigger.TriggerName,
-          Type: trigger.Type
+          Type: trigger.Type,
+          Qualifier: prevVersion
         });
       }
     }
-    const prevVersion = Number(config.config.FunctionVersion) - 1;
     if (prevVersion) {
       scfInfo = await scf.call(this, {
         Action: 'GetFunction',
