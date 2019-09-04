@@ -121,7 +121,7 @@ module.exports = main.export();`
   const namespaceList = await scf.call(this, {
     Action: 'ListNamespaces'
   });
-  if (!namespaceList.Namespaces.find((n: any) => n.Namespaces === config.config.Namespace)) {
+  if (!namespaceList.Namespaces.find((n: any) => n.Namespace === config.config.Namespace)) {
     this.logger.info('创建命名空间');
     await scf.call(this, {
       Action: 'CreateNamespace',
@@ -150,16 +150,20 @@ module.exports = main.export();`
       Namespace: config.config.Namespace,
     });
 
-    this.logger.info('更新云函数设置');
-    await scf.call(this, {
-      Action: 'UpdateFunctionConfiguration',
-      Environment: config.config.Environment,
-      FunctionName: config.config.FunctionName,
-      MemorySize: config.config.MemorySize,
-      Timeout: config.config.Timeout,
-      VpcConfig: config.config.VpcConfig,
-      Namespace: config.config.Namespace,
-    });
+    if (scfInfo.MemorySize !== config.config.MemorySize || scfInfo.Timeout !== config.config.Timeout) {
+      this.logger.info('更新云函数设置');
+      await scf.call(this, {
+        Action: 'UpdateFunctionConfiguration',
+        Environment: config.config.Environment,
+        FunctionName: config.config.FunctionName,
+        MemorySize: config.config.MemorySize,
+        Timeout: config.config.Timeout,
+        VpcConfig: config.config.VpcConfig,
+        Namespace: config.config.Namespace,
+      });
+    } else {
+      this.logger.info('云函数设置未变更，跳过更新');
+    }
   } catch (error) {
     if (error.Code === 'ResourceNotFound.FunctionName') {
       this.logger.info('创建云函数');
@@ -285,5 +289,8 @@ module.exports = main.export();`
     }
 
     this.logger.info('触发器发布完成 %o', config.config.triggers);
+
+    this.logger.info('删除临时文件');
+    execSync(`rm -rf ${config.config.tmp}`);
   }
 }

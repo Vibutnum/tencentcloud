@@ -2,7 +2,9 @@ import request from '@faasjs/request';
 import scf from './scf';
 import Tencentcloud from '..';
 
-export default function invokeCloudFunction (this: Tencentcloud, name: string, data: any, options?: any) {
+export function invokeCloudFunction (this: Tencentcloud, name: string, data?: any, options?: {
+  [key: string]: any;
+}) {
   this.logger.debug('invokeFunction: %s %o', name, options);
 
   if (process.env.FaasMode === 'local' && process.env.FaasLocal) {
@@ -21,6 +23,28 @@ export default function invokeCloudFunction (this: Tencentcloud, name: string, d
       InvocationType: 'Event',
       Namespace: process.env.FaasEnv,
       Qualifier: process.env.FaasEnv
-    }, options || {}));
+    }, options || {})).then(function (res) {
+      if (res.Result.ErrMsg) {
+        return Promise.reject(Error(res.Result.ErrMsg));
+      } else if (res.Result.RetMsg) {
+        try {
+          return JSON.parse(res.Result.RetMsg);
+        } catch (error) {
+          return res.Result.RetMsg;
+        }
+      } else {
+        return res;
+      }
+    });
   }
+}
+
+export function invokeSyncCloudFunction (this: Tencentcloud, name: string, data?: any, options?: {
+  [key: string]: any;
+}) {
+  if (!options) {
+    options = {};
+  }
+  options.InvocationType = 'RequestResponse';
+  return invokeCloudFunction.call(this, name, data, options);
 }

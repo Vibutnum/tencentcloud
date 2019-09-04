@@ -47,7 +47,7 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
 
   this.logger.debug('查询网关接口是否存在');
 
-  const apiInfo = await api(provider, {
+  let apiInfo = await api(provider, {
     Action: 'DescribeApisStatus',
     searchName: config.config['requestConfig.path'],
     serviceId: config.config.serviceId,
@@ -58,11 +58,26 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
   });
 
   if (apiInfo) {
-    this.logger.info('更新网关接口');
-    await api(provider, Object.assign(config.config, {
-      Action: 'ModifyApi',
-      apiId: apiInfo.apiId,
-    }));
+    apiInfo = await api(provider, {
+      Action: 'DescribeApi',
+      serviceId: config.config.serviceId,
+      apiId: apiInfo.apiId
+    });
+    if (
+      apiInfo.serviceType !== 'SCF' ||
+      apiInfo.serviceTimeout !== config.config.serviceTimeout ||
+      apiInfo.serviceScfFunctionName !== config.config.serviceScfFunctionName ||
+      apiInfo.serviceScfFunctionNamespace !== config.config.serviceScfFunctionNamespace ||
+      apiInfo.serviceScfFunctionQualifier !== config.config.serviceScfFunctionQualifier) {
+      this.logger.info('更新网关接口');
+      await api(provider, Object.assign(config.config, {
+        Action: 'ModifyApi',
+        apiId: apiInfo.apiId,
+      }));
+    } else {
+      this.logger.info('网关无需更新 %s %s', config.config['requestConfig.method'], config.config['requestConfig.path']);
+      return;
+    }
   } else {
     this.logger.info('创建网关接口');
     await api(provider, Object.assign(config.config, {

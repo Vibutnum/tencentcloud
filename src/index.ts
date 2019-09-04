@@ -1,7 +1,7 @@
 import { DeployData } from '@faasjs/func';
 import Logger from '@faasjs/logger';
 import deployCloudFunction from './cloud_function/deploy';
-import invokeCloudFunction from './cloud_function/invoke';
+import { invokeCloudFunction, invokeSyncCloudFunction } from './cloud_function/invoke';
 import deployHttp from './http/deploy';
 
 export interface TencentcloudConfig {
@@ -39,7 +39,18 @@ export default class Tencentcloud {
   public async invokeCloudFunction (name: string, data: {
     event: any;
     context: any;
-  }, options?: any) {
+  }, options?: {
+    [key: string]: any;
+  }) {
     return invokeCloudFunction.call(this, name, data, options);
+  }
+
+  public async invokeSyncCloudFunction (name: string, data: {
+    event: any;
+    context: any;
+  }, options?: {
+    [key: string]: any;
+  }) {
+    return invokeSyncCloudFunction.call(this, name, data, options);
   }
 }
