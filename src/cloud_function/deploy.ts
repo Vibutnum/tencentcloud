@@ -3,7 +3,7 @@ import deepMerge from '@faasjs/deep_merge';
 import { loadTs } from '@faasjs/load';
 import { writeFileSync } from 'fs';
 import { execSync } from 'child_process';
-import { upload, remove } from './cos';
+import { checkBucket, createBucket, upload, remove } from './cos';
 import scf from './scf';
 import Tencentcloud from '..';
 
@@ -15,7 +15,7 @@ const defaults = {
 };
 
 export default async function deployCloudFunction (this: Tencentcloud, data: DeployData, origin: any) {
-  this.logger.info('开始部署云函数');
+  this.logger.info('开始发布云函数');
 
   const config = deepMerge(origin);
 
@@ -108,6 +108,19 @@ module.exports = main.export();`
 
   this.logger.info('构建完成 %sdeploy.zip', config.config.tmp);
 
+  this.logger.debug('检查 Bucket 是否存在 %s', config.config.Bucket);
+  try {
+    await checkBucket.call(this, {
+      Bucket: config.config.Bucket,
+      Region: config.config.Region
+    });
+  } catch (error) {
+    this.logger.info('Bucket 不存在，创建 Bucket %s', config.config.Bucket);
+    await createBucket.call(this, {
+      Bucket: config.config.Bucket,
+      Region: config.config.Region
+    });
+  }
 
   this.logger.info('上传代码包');
   await upload.call(this, {
@@ -121,8 +134,10 @@ module.exports = main.export();`
   const namespaceList = await scf.call(this, {
     Action: 'ListNamespaces'
   });
-  if (!namespaceList.Namespaces.find((n: any) => n.Namespace === config.config.Namespace)) {
-    this.logger.info('创建命名空间');
+  if (!namespaceList.Namespaces.find(function (n: any) {
+    return n.Name === config.config.Namespace;
+  })) {
+    this.logger.info('命名空间不存在，创建命名空间');
     await scf.call(this, {
       Action: 'CreateNamespace',
       Namespace: config.config.Namespace

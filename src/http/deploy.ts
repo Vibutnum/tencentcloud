@@ -45,22 +45,41 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
 
   const provider = config.provider.config;
 
-  this.logger.debug('查询网关接口是否存在');
+  this.logger.debug('查询服务信息 %s', data.env);
+  let serviceInfo = await api(provider, {
+    Action: 'DescribeServicesStatus',
+    searchName: data.env
+  }).then(function (body) {
+    return body.serviceStatusSet.find(function (item: any) {
+      return item.serviceName === data.env;
+    });
+  });
+
+  if (!serviceInfo) {
+    this.logger.info('服务不存在，创建服务 %s', data.env);
+    serviceInfo = await api(provider, {
+      Action: 'CreateService',
+      serviceName: data.env,
+      protocol: 'http&https'
+    }).then(function (body) { return body.data; });
+  }
+
+  this.logger.debug('查询接口是否存在 %s %s', serviceInfo.serviceId, config.config['requestConfig.path']);
 
   let apiInfo = await api(provider, {
     Action: 'DescribeApisStatus',
     searchName: config.config['requestConfig.path'],
-    serviceId: config.config.serviceId,
+    serviceId: serviceInfo.serviceId,
   }).then(function (body) {
-    return body.apiIdStatusSet.filter(function (item: any) {
+    return body.apiIdStatusSet.find(function (item: any) {
       return item.path === config.config['requestConfig.path'];
-    })[0];
+    });
   });
 
   if (apiInfo) {
     apiInfo = await api(provider, {
       Action: 'DescribeApi',
-      serviceId: config.config.serviceId,
+      serviceId: serviceInfo.serviceId,
       apiId: apiInfo.apiId
     });
     if (
@@ -69,7 +88,7 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
       apiInfo.serviceScfFunctionName !== config.config.serviceScfFunctionName ||
       apiInfo.serviceScfFunctionNamespace !== config.config.serviceScfFunctionNamespace ||
       apiInfo.serviceScfFunctionQualifier !== config.config.serviceScfFunctionQualifier) {
-      this.logger.info('更新网关接口');
+      this.logger.info('更新接口');
       await api(provider, Object.assign(config.config, {
         Action: 'ModifyApi',
         apiId: apiInfo.apiId,
@@ -79,9 +98,10 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
       return;
     }
   } else {
-    this.logger.info('创建网关接口');
+    this.logger.info('接口不存在，创建接口');
     await api(provider, Object.assign(config.config, {
       Action: 'CreateApi',
+      serviceId: serviceInfo.serviceId,
     }));
   }
 
@@ -91,7 +111,7 @@ export default async function (this: Tencentcloud, data: DeployData, origin: any
     Action: 'ReleaseService',
     environmentName: 'release',
     releaseDesc: `Published ${config.config.serviceScfFunctionName} by ${process.env.LOGNAME}`,
-    serviceId: config.config.serviceId,
+    serviceId: serviceInfo.serviceId,
   });
 
   this.logger.info('网关发布完成 %s %s', config.config['requestConfig.method'], config.config['requestConfig.path']);
